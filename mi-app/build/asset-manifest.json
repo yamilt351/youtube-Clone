@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/yamilt351/Youtube-Clone-Front/static/css/main.754ebb54.css",
+    "main.js": "/yamilt351/Youtube-Clone-Front/static/js/main.26331211.js",
+    "index.html": "/yamilt351/Youtube-Clone-Front/index.html",
+    "main.754ebb54.css.map": "/yamilt351/Youtube-Clone-Front/static/css/main.754ebb54.css.map",
+    "main.26331211.js.map": "/yamilt351/Youtube-Clone-Front/static/js/main.26331211.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.754ebb54.css",
+    "static/js/main.26331211.js"
+  ]
+}
