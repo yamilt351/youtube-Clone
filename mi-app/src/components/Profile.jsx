@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../Redux/userSlice";
 import {
   getStorage,
   ref,
@@ -23,7 +25,7 @@ const Container = styled.div`
 `;
 
 const Wrapper = styled.div`
-  width: 600px;
+  width: 400px;
   height: 600px;
   background-color: ${({ theme }) => theme.bgLighter};
   color: ${({ theme }) => theme.text};
@@ -51,13 +53,7 @@ const Input = styled.input`
   background-color: transparent;
   z-index: 999;
 `;
-const Desc = styled.textarea`
-  border: 1px solid ${({ theme }) => theme.soft};
-  color: ${({ theme }) => theme.text};
-  border-radius: 3px;
-  padding: 10px;
-  background-color: transparent;
-`;
+
 const Button = styled.button`
   border-radius: 3px;
   border: none;
@@ -67,43 +63,46 @@ const Button = styled.button`
   background-color: ${({ theme }) => theme.soft};
   color: ${({ theme }) => theme.textSoft};
 `;
+const ButtonL = styled.button`
+  border-radius: 3px;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: red;
+  color: black;
+`;
 const Label = styled.label`
   font-size: 14px;
 `;
-const Upload = ({ setOpen }) => {
+
+const Profile = ({ setOpenProfile }) => {
+
+  const dispatch = useDispatch();
+
+  const { currentUser } = useSelector((state) => state.user);
+
   const [img, setImg] = useState(undefined);
-  const [video, setVideo] = useState(undefined);
+
   const [imgPerc, setImgPerc] = useState(0);
-  const [videoPerc, setVideoPerc] = useState(0);
+
   const [inputs, setInputs] = useState({});
-  const [tags, setTags] = useState([]);
 
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setInputs((prev) => {
-      return { ...prev, [e.target.name]: e.target.value };
-    });
-  };
-
-  const handleTags = (e) => {
-    setTags(e.target.value.split(","));
-  };
 
   const uploadFile = (file, urlType) => {
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
-
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        urlType === "imgUrl"
+        urlType === "imgage"
           ? setImgPerc(Math.round(progress))
-          : setVideoPerc(Math.round(progress));
+          : setImgPerc(Math.round(progress));
         switch (snapshot.state) {
           case "paused":
             console.log("Upload is paused");
@@ -126,72 +125,61 @@ const Upload = ({ setOpen }) => {
     );
   };
 
-  useEffect(() => {
-    video && uploadFile(video, "videoUrl");
-  }, [video]);
-
-  useEffect(() => {
-    img && uploadFile(img, "imgUrl");
-  }, [img]);
+    useEffect(() => {
+      img && uploadFile(img, "image");
+    }, [img]);
 
   const handleUpload = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/videos", { ...inputs, tags });
-      setOpen(false);
-      res.status === 200 && navigate(`/video/${res.data._id}`);
-      
+      const res = await axios.put(`/users/${currentUser._id}`, { ...inputs });
+      setOpenProfile(false);
+      res.status === 200 && navigate(`/`);
     } catch (error) {
       console.log(error.response.data);
     }
   };
 
+  const handleChange = (e) => {
+    setInputs((prev) => {
+      return { ...prev, [e.target.name]: e.target.value };
+    });
+  };
+
+  const handleLogout=()=>{
+    dispatch(logout())
+    setOpenProfile(false);
+    navigate(`/`);
+  }
   return (
     <Container>
       <Wrapper>
-        <Close onClick={() => setOpen(false)}>X</Close>
-        <Title>Upload a New Video</Title>
-        <Label>Video:</Label>
-        {videoPerc > 0 ? (
-          "Uploading:" + videoPerc + "%"
-        ) : (
-          <Input
-            type="file"
-            accept="video/*"
-            onChange={(e) => setVideo(e.target.files[0])}
-          />
-        )}
-        <Input
-          type="text"
-          placeholder="Title"
-          name="title"
-          onChange={handleChange}
-        />
-        <Desc
-          placeholder="Description"
-          name="description"
-          rows={8}
-          onChange={handleChange}
-        />
-        <Input
-          type="text"
-          placeholder="Separate the tags with commas."
-          onChange={handleTags}
-        />
-        <Label>Image:</Label>
+        <Close onClick={() => setOpenProfile(false)}>X</Close>
+        <Title>Profile</Title>
+        <Label>Profile picture:</Label>
         {imgPerc > 0 ? (
           "Uploading:" + imgPerc + "%"
         ) : (
           <Input
             type="file"
             accept="image/*"
-            onChange={(e) => setImg(e.target.files[0])}
+            name="image"
+            onChange={((e) => setImg(e.target.files[0]))}
           />
         )}
+        <Label> change your name</Label>
+        {console.log(currentUser._id)}
+        <Input
+          type="text"
+          placeholder="name"
+          name="username"
+          onChange={handleChange}
+        />
         <Button onClick={handleUpload}>Upload</Button>
+        <ButtonL onClick={handleLogout}>LogOut</ButtonL>
       </Wrapper>
     </Container>
   );
 };
 
-export default Upload;
+export default Profile;

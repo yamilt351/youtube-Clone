@@ -62,7 +62,7 @@ const Login = styled.button`
   align-items: center;
   gap: 5px;
 `;
-function Menu({darkMode, setDark}) {
+function Menu({darkMode, setDark, setOpenProfile }) {
    const { currentUser } = useSelector((state) => state.user);
   return (
     <Container>
@@ -103,7 +103,9 @@ function Menu({darkMode, setDark}) {
           History
         </Item>
         <Hr />
-        {currentUser ? ("") : (
+        {currentUser ? (
+          ""
+        ) : (
           <Link to="/signin">
             <Login>
               <MdPersonPin />
@@ -137,7 +139,7 @@ function Menu({darkMode, setDark}) {
         </Item>
         <Hr />
         <Item>
-          <MdOutlineSettings />
+          <MdOutlineSettings onClick={() => setOpenProfile(true)} />
           Settings
         </Item>
         <Item>
