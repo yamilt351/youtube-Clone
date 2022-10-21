@@ -56,15 +56,17 @@ function Comments({ videoId }) {
     fetchComments();
   }, [videoId]);
 
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    const postComments = await axios.post(`/comments/`, {
-      description,
-      userId: currentUser._id,
-      videoId: videoId,
-    });
-    dispatch(comment(postComments.data))
-  };
+  
+    const handleCommentSubmit = async () => {
+      const postComments = await axios.post(`/comments/`, {
+        description:description,
+        userId: currentUser._id,
+        videoId: videoId,
+      });
+      dispatch(comment(postComments.data.description));
+    };
+   
+
 
   return (
     <Container>

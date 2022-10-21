@@ -49,7 +49,7 @@ export const subscribe = async (req, res, next) => {
       $push: { subscribedUser: req.params.id },
     });
     await User.findByIdAndUpdate(req.params.id, {
-      $inc: {subscribers: 1},
+      $inc: { subscribers: 1 },
     });
     res.status(200).json("Subscription successfull.");
   } catch (err) {
@@ -64,7 +64,7 @@ export const unsubscribe = async (req, res, next) => {
         $pull: { subscribedUser: req.params.id },
       });
       await User.findByIdAndUpdate(req.params.id, {
-        $inc: {subscribers: -1},
+        $inc: { subscribers: -1 },
       });
       res.status(200).json("Unsubscription successfull.");
     } catch (err) {

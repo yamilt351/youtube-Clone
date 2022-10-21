@@ -5,10 +5,12 @@ import {Link} from "react-router-dom";
 import styled from "styled-components";
 import {format} from "timeago.js"
 
+
 const Container = styled.div`
-  width: ${(props) => (props.type !== "sm" && "360px")};
+  width: ${(props) => props.type !== "sm" && "340px"};
   cursor: pointer;
   margin-bottom: ${(props) => (props.type === "sm" ? "10px" : "45px")};
+  margin-right: ${(props) => (props.type === "sm" ? "10px" : "15px")};
   display: ${(props) => props.type === "sm" && "flex"};
 `;
 
@@ -55,6 +57,7 @@ const Info = styled.div`
 function Card({type,videos}) {
    const [channel, setChannel] = useState({});
 
+
    useEffect(() => {
      const fetchVideo = async () => {
        const response = await axios.get(`/users/find/${videos.userId}`);
@@ -70,9 +73,10 @@ function Card({type,videos}) {
         <Details type={type}>
           <ChnImg type={type} src={channel.image} />
           <Text>
-            <Title>{videos.title}</Title>
+            <Title>{videos.title}
+            </Title>
             <ChanelName>
-              {channel.username} - {channel.subscribers}
+              {channel.username} - {videos.like.length} likes
             </ChanelName>
             <Info>
               {videos.views} views - {format(videos.timestamps)}

@@ -8,6 +8,7 @@ import Search from "./Pages/Search";
 import Signin from "./Pages/Signin";
 import Video from "./Pages/Video";
 import { darkTheme, lightTheme } from "./utils/Theme";
+
 const Container = styled.div`
   display: flex;
 `;
@@ -24,7 +25,7 @@ function App() {
   const [darkMode, setDark] = useState(true);
 
   return (
-    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+    <ThemeProvider theme={darkMode ? lightTheme : darkTheme}>
       <Container className="App">
         <Router>
           <Menu darkMode={darkMode} setDark={setDark} />
@@ -39,10 +40,7 @@ function App() {
                   path="/subscriptions"
                   element={<Home type="sub" />}
                 ></Route>
-                <Route
-                  path="/search"
-                  element={<Search  />}
-                ></Route>
+                <Route path="/search" element={<Search />}></Route>
                 <Route path="/signin" element={<Signin />}></Route>
                 <Route path="video">
                   <Route path=":id" element={<Video />} />

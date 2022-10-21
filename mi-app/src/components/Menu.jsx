@@ -16,7 +16,6 @@ import {
   MdSportsEsports,
   MdSubscriptions,
   MdTextSnippet,
-
 } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -62,7 +61,8 @@ const Login = styled.button`
   align-items: center;
   gap: 5px;
 `;
-function Menu({darkMode, setDark, setOpenProfile }) {
+function Menu({darkMode, setDark}) {
+
    const { currentUser } = useSelector((state) => state.user);
   return (
     <Container>
@@ -139,7 +139,7 @@ function Menu({darkMode, setDark, setOpenProfile }) {
         </Item>
         <Hr />
         <Item>
-          <MdOutlineSettings onClick={() => setOpenProfile(true)} />
+          <MdOutlineSettings />
           Settings
         </Item>
         <Item>

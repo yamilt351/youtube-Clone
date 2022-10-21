@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { MdPersonPin, MdOutlineSearch, MdVideoCall } from "react-icons/md";
+import {
+  MdPersonPin,
+  MdOutlineSearch,
+  MdVideoCall,
+} from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Upload from "./Upload";
 import Profile from "./Profile";
+
 
 const Container = styled.div`
   position: sticky;
@@ -56,25 +61,26 @@ const Login = styled.button`
   gap: 5px;
 `;
 const User = styled.div`
- color: ${({ theme }) => theme.text};
- display: flex;
- align-items: center;
- font-size: 26px;
+  color: ${({ theme }) => theme.text};
+  display: flex;
+  align-items: center;
+  font-size: 26px;
 `;
 const Avatar = styled.img`
   height: 33px;
   width: 33px;
   border-radius: 10px;
   cursor: pointer;
-  background-color: #3ea6ff ;
+  background-color: #3ea6ff;
   margin: 0px 12px;
 `;
 
 function Navbar() {
-  const navigate= useNavigate()
-  const [open, setOpen]= useState(false);
-  const [openProfile, setOpenProfile]=useState(false);
-    const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
+  const [query, setQuery] = useState("");
+
   const { currentUser } = useSelector((state) => state.user);
 
   return (
@@ -90,9 +96,11 @@ function Navbar() {
           </Search>
           {currentUser ? (
             <User>
-              <MdVideoCall onClick={() => setOpen(true)} />
-              {currentUser.username}
-              <Avatar src={currentUser.image}  onClick={()=>setOpenProfile(true)}/>
+              <MdVideoCall onClick={() => setOpen(true)} cursor="pointer" />
+              <Avatar
+                src={currentUser.image}
+                onClick={() => setOpenProfile(true)}
+              />
             </User>
           ) : (
             <Link to="/signin">
@@ -105,7 +113,9 @@ function Navbar() {
         </Wrapper>
       </Container>
       {open && <Upload setOpen={setOpen} />}
-      {openProfile && <Profile  setOpenProfile={setOpenProfile}/>}
+      {openProfile && (
+        <Profile setOpenProfile={setOpenProfile} openProfile={openProfile} />
+      )}
     </>
   );
 }

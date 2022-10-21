@@ -5,7 +5,6 @@ import { useState } from "react";
 import styled from "styled-components";
 import { format } from "timeago.js";
 
-
 const Container = styled.div`
   display: flex;
   gap: 10px;

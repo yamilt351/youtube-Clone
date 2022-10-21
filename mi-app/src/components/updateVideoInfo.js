@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../Redux/userSlice";
 import {
   getStorage,
   ref,
@@ -11,6 +9,7 @@ import {
 import app from "../firebase";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
   width: 100%;
@@ -25,7 +24,7 @@ const Container = styled.div`
 `;
 
 const Wrapper = styled.div`
-  width: 400px;
+  width: 600px;
   height: 600px;
   background-color: ${({ theme }) => theme.bgLighter};
   color: ${({ theme }) => theme.text};
@@ -53,7 +52,13 @@ const Input = styled.input`
   background-color: transparent;
   z-index: 999;
 `;
-
+const Desc = styled.textarea`
+  border: 1px solid ${({ theme }) => theme.soft};
+  color: ${({ theme }) => theme.text};
+  border-radius: 3px;
+  padding: 10px;
+  background-color: transparent;
+`;
 const Button = styled.button`
   border-radius: 3px;
   border: none;
@@ -63,48 +68,44 @@ const Button = styled.button`
   background-color: ${({ theme }) => theme.soft};
   color: ${({ theme }) => theme.textSoft};
 `;
-const ButtonL = styled.button`
-  border-radius: 3px;
-  border: none;
-  padding: 10px 20px;
-  font-weight: 500;
-  cursor: pointer;
-  background-color: red;
-  color: black;
-`;
 const Label = styled.label`
   font-size: 14px;
 `;
-
-const Profile = ({ setOpenProfile }) => {
-
-  const dispatch = useDispatch();
-
-  const { currentUser } = useSelector((state) => state.user);
-
+const UpdateVideoInfo = ({ setOpenVideoInfo }) => {
   const [img, setImg] = useState(undefined);
-
+  const [video, setVideo] = useState(undefined);
   const [imgPerc, setImgPerc] = useState(0);
-
+  const [videoPerc, setVideoPerc] = useState(0);
   const [inputs, setInputs] = useState({});
+  const [tags, setTags] = useState([]);
+   const { currentVideo } = useSelector((state) => state.video);
 
   const navigate = useNavigate();
 
+  const handleChange = (e) => {
+    setInputs((prev) => {
+      return { ...prev, [e.target.name]: e.target.value };
+    });
+  };
+
+  const handleTags = (e) => {
+    setTags(e.target.value.split(","));
+  };
 
   const uploadFile = (file, urlType) => {
-
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
+
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        urlType === "imgage"
+        urlType === "imgUrl"
           ? setImgPerc(Math.round(progress))
-          : setImgPerc(Math.round(progress));
+          : setVideoPerc(Math.round(progress));
         switch (snapshot.state) {
           case "paused":
             console.log("Upload is paused");
@@ -127,74 +128,71 @@ const Profile = ({ setOpenProfile }) => {
     );
   };
 
-    useEffect(() => {
-      img && uploadFile(img, "image");
-    }, [img]);
+  useEffect(() => {
+    video && uploadFile(video, "videoUrl");
+  }, [video]);
 
-    
+  useEffect(() => {
+    img && uploadFile(img, "imgUrl");
+  }, [img]);
+
   const handleUpload = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put(`/users/${currentUser._id}`, { ...inputs });
-      setOpenProfile(false);
-      res.status === 200 && navigate(`/`);
+      const res = await axios.put(`/videos/${currentVideo._id}`, { ...inputs, tags });
+      setOpenVideoInfo(false);
+      res.status === 200 && navigate(`/video/${res.data._id}`);
     } catch (error) {
       console.log(error.response.data);
     }
   };
 
-  const handleChange = (e) => {
-    setInputs((prev) => {
-      return { ...prev, [e.target.name]: e.target.value };
-    });
-  };
-
-const handleDeleteAccount= async (e)=>{
-e.preventDefault();
-try {
-  await axios.delete(`/users/delete/${currentUser._id}`)
-  dispatch(logout());
-  setOpenProfile(false);
-  navigate(`/`);
-} catch (error) {
-  console.log(error)
-}
-}
-  const handleLogout=()=>{
-    dispatch(logout())
-    setOpenProfile(false);
-    navigate(`/`);
-  }
   return (
     <Container>
       <Wrapper>
-        <Close onClick={() => setOpenProfile(false)}>X</Close>
-        <Title>Profile</Title>
-        <Label>Profile picture:</Label>
+        <Close onClick={() => setOpenVideoInfo(false)}>X</Close>
+        <Title>Update your video</Title>
+        <Label>Video:</Label>
+        {videoPerc > 0 ? (
+          "Uploading:" + videoPerc + "%"
+        ) : (
+          <Input
+            type="file"
+            accept="video/*"
+            onChange={(e) => setVideo(e.target.files[0])}
+          />
+        )}
+        <Input
+          type="text"
+          placeholder="Title"
+          name="title"
+          onChange={handleChange}
+        />
+        <Desc
+          placeholder="Description"
+          name="description"
+          rows={8}
+          onChange={handleChange}
+        />
+        <Input
+          type="text"
+          placeholder="Separate the tags with commas."
+          onChange={handleTags}
+        />
+        <Label>Image:</Label>
         {imgPerc > 0 ? (
           "Uploading:" + imgPerc + "%"
         ) : (
           <Input
             type="file"
             accept="image/*"
-            name="image"
             onChange={(e) => setImg(e.target.files[0])}
           />
         )}
-        <Label> change your name</Label>
-        {console.log(currentUser._id)}
-        <Input
-          type="text"
-          placeholder="name"
-          name="username"
-          onChange={handleChange}
-        />
         <Button onClick={handleUpload}>Upload</Button>
-        <ButtonL onClick={handleDeleteAccount}>Delete Account</ButtonL>
-        <ButtonL onClick={handleLogout}>LogOut</ButtonL>
       </Wrapper>
     </Container>
   );
 };
 
-export default Profile;
+export default UpdateVideoInfo;

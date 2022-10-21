@@ -62,7 +62,6 @@ function Signin() {
   })
 const dispatch= useDispatch();
 const navigate=useNavigate();
-
   const { username, password, email } = formData;
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -76,6 +75,7 @@ const navigate=useNavigate();
         await axios
           .post("/auth/signup", user)
           .then(({ data }) => console.log(data));
+
       } catch (error) {
         console.log(error);
       }
@@ -117,7 +117,6 @@ const navigate=useNavigate();
           type="text"
           name="username"
           onChange={handleChange}
-    
           required
         />
         <Input
@@ -125,10 +124,10 @@ const navigate=useNavigate();
           placeholder="Password"
           type="password"
           onChange={handleChange}
-     
           required
         />
         <Button onClick={handleSignin}>Sign In</Button>
+
         <Title>Or</Title>
        
         <Input

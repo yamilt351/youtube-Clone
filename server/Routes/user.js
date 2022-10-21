@@ -9,7 +9,7 @@ router.put("/:id",verify, update)
 // delete user 
 router.delete("/delete/:id", verify,deleteUser);
 // get a user 
-router.get("/find/:id",getOne)
+router.get("/find/:id",getOne)//-----
 // subscribe a user 
 router.put("/sub/:id", verify,subscribe);
 // unscribe a user 

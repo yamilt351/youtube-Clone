@@ -6,16 +6,19 @@ import {
   MdThumbDown,
   MdThumbUpOffAlt,
   MdThumbUp,
+  MdRestoreFromTrash,
+  MdEdit,
 } from "react-icons/md";
 import styled from "styled-components";
 // import Card from "../components/Card";
 import Comments from "../components/Comments";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { dislike, fetchSuccess, like } from "../Redux/videoSlice";
 import { format } from "timeago.js";
 import { suscription } from "../Redux/userSlice";
 import Recommendation from "../components/Recommendation";
+import UpdateVideoInfo from "../components/updateVideoInfo";
 
 const Container = styled.div`
   display: flex;
@@ -122,11 +125,13 @@ const VideoFrame = styled.video`
   width: 800px;
   height: 450px;
 `;
+
 function Video() {
   const { currentUser } = useSelector((state) => state.user);
   const { currentVideo } = useSelector((state) => state.video);
+  const [OpenVideoInfo, setOpenVideoInfo] = useState(false);
   const [channel, setChannel] = useState();
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const path = useLocation().pathname.split("/")[2];
@@ -139,12 +144,28 @@ function Video() {
           `/users/find/${videoRes.data.userId}`
         );
         setChannel(channelRes.data);
+
         dispatch(fetchSuccess(videoRes.data));
       } catch (error) {
         console.log(error);
       }
     };
     fetchData();
+  }, [path, dispatch]);
+
+  useEffect(() => {
+    const fetchView = async () => {
+      try {
+        const videoRes = await axios.get(`/videos/find/${path}`);
+
+        const channelRes = await axios.put(`/videos/view/${videoRes.data._id}`);
+        setChannel(channelRes.data);
+        dispatch(fetchSuccess(videoRes.data));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchView();
   }, [path, dispatch]);
 
   const handleLike = async () => {
@@ -168,17 +189,25 @@ function Video() {
     dispatch(suscription(channel._id));
   };
 
+  const handleDelete = async () => {
+    const deletePost = await axios.delete(`/videos/${currentVideo._id}`);
+    navigate(`/`);
+    return deletePost;
+  };
   return (
     <Container>
       <Content>
         <VideoWrapper>
           <VideoFrame src={currentVideo?.videoUrl} controls />
         </VideoWrapper>
-        <Title>titulo {currentVideo?.title}</Title>
+        {console.log(channel?._id)}
+        <Title>
+          {currentVideo?.title}{" "}
+          <MdEdit onClick={() => setOpenVideoInfo(true)} cursor="pointer" />
+        </Title>
         <Detail>
           <Info>
-            info {currentVideo?.views} views -{" "}
-            {format(currentVideo?.timestamps)}
+            {currentVideo?.views} views -{format(currentVideo?.timestamps)}
           </Info>
           <Buttons>
             <Button onClick={handleLike}>
@@ -205,12 +234,20 @@ function Video() {
               <BiListPlus />
               Save
             </Button>
+            {currentUser ? (
+              <Button>
+                Delete
+                <MdRestoreFromTrash onClick={handleDelete} />
+              </Button>
+            ) : (
+              ""
+            )}
           </Buttons>
         </Detail>
         <Hr />
         <Channel>
           <ChannelInfo>
-            <ImageChanell />
+            <ImageChanell src={channel?.image} />
             <ChannelDetail>
               <ChannelTitle> {channel?.username}</ChannelTitle>
               <ChannelCounter>
@@ -218,7 +255,6 @@ function Video() {
               </ChannelCounter>
               <ChannelDescription>
                 {" "}
-                descr
                 {currentVideo?.description}
               </ChannelDescription>
             </ChannelDetail>
@@ -226,8 +262,8 @@ function Video() {
           <Subscribe onClick={handleSuscription}>
             {" "}
             {currentUser?.subscribedUser?.includes(channel?._id)
-              ? " SUBSCRIBED"
-              : "SUBSCRIBE"}
+              ? " SUSCRIPTO"
+              : "SUSCRIBIRSE"}
           </Subscribe>
         </Channel>
         <Hr />
@@ -235,6 +271,12 @@ function Video() {
       </Content>
 
       <Recommendation tags={currentVideo?.tags} />
+      {OpenVideoInfo && (
+        <UpdateVideoInfo
+          setOpenVideoInfo={setOpenVideoInfo}
+          OpenVideoInfo={OpenVideoInfo}
+        />
+      )}
     </Container>
   );
 }
